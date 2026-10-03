@@ -1,0 +1,113 @@
+/* Kotoba theme for Anki's own screens. Colours come from the --kt-* tokens (the active Kotoba palette)
+   and Anki's variables, which the add-on overrides with the same palette. Rules are scoped to Anki's
+   page structure so they never touch card content. */
+
+/* ===== Redesigned screens: Decks (home) and deck overview ===== */
+body:has(.kt) { background: var(--kt-bg); margin: 0; }
+.kt { max-width: 720px; margin: 0 auto; padding: 36px 24px 40px; text-align: left; color: var(--kt-fg);
+  font-family: "Noto Sans CJK JP", "Noto Sans JP", system-ui, sans-serif; }
+.kt h1 { font-size: 30px; font-weight: 600; margin: 2px 0 0; letter-spacing: 0.02em; }
+.kt-date, .kt-crumb { color: var(--kt-muted); font-size: 13px; letter-spacing: 0.04em; min-height: 1em; }
+
+/* Heatmap: a year of reviews (filled) and the next weeks' due cards (outlined). Columns are weeks. */
+.kt-heatcard { background: var(--kt-panel); border-radius: 14px; padding: 14px 16px 12px; margin-top: 10px; }
+.kt-heatwrap { display: grid; grid-template-columns: 16px auto; column-gap: 4px; justify-content: center; }
+.kt-months { grid-column: 2; display: grid; grid-auto-columns: 9px; gap: 2px; height: 15px;
+  font-size: 10px; color: var(--kt-muted); }
+.kt-months span { grid-row: 1; white-space: nowrap; }
+.kt-wdays { grid-row: 2; display: grid; grid-template-rows: repeat(7, 9px); gap: 2px; font-size: 9px; line-height: 9px;
+  color: var(--kt-muted); }
+.kt-heat { grid-row: 2; grid-column: 2; display: grid; grid-template-rows: repeat(7, 9px); grid-auto-flow: column;
+  grid-auto-columns: 9px; gap: 2px; }
+.kt-heat i, .kt-legend i { display: block; border-radius: 2px; background: color-mix(in srgb, var(--kt-fg) 7%, transparent); }
+.kt-heat i.l1 { background: color-mix(in srgb, var(--kt-accent) 30%, transparent); }
+.kt-heat i.l2, .kt-legend i.l2 { background: color-mix(in srgb, var(--kt-accent) 55%, transparent); }
+.kt-heat i.l3 { background: color-mix(in srgb, var(--kt-accent) 78%, transparent); }
+.kt-heat i.l4 { background: var(--kt-accent); }
+.kt-heat i.f, .kt-legend i.f { background: none; box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--kt-fg) 10%, transparent); }
+.kt-heat i.f1 { box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--kt-accent) 35%, transparent); }
+.kt-heat i.f2, .kt-legend i.f2 { box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--kt-accent) 60%, transparent); }
+.kt-heat i.f3 { box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--kt-accent) 80%, transparent); }
+.kt-heat i.f4 { box-shadow: inset 0 0 0 2px var(--kt-accent); }
+.kt-heat i.today { outline: 1.5px solid var(--kt-fg); outline-offset: 1px; }
+.kt-heat i[onclick] { cursor: pointer; }
+.kt-heat i[onclick]:hover { outline: 1.5px solid var(--kt-muted); outline-offset: 1px; }
+.kt-heatstats { display: flex; flex-wrap: wrap; justify-content: center; gap: 4px 18px; margin-top: 12px;
+  font-size: 12px; color: var(--kt-muted); }
+.kt-heatstats b { color: var(--kt-fg); font-weight: 600; }
+.kt-legend { display: inline-flex; align-items: center; gap: 5px; }
+.kt-legend i { width: 9px; height: 9px; }
+
+.kt-tiles { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 22px; }
+.kt-overview .kt-heatcard { margin-top: 20px; }
+.kt-tiles3 { grid-template-columns: repeat(3, 1fr); }
+.kt-tile { background: var(--kt-panel); border-radius: 14px; padding: 12px 16px; }
+.kt-tile b { display: block; font-size: 24px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.kt-tile span { color: var(--kt-muted); font-size: 12px; }
+.kt-overview .kt-tile b { font-size: 36px; }
+.kt-tile.kt-new b { color: var(--state-new); }
+.kt-tile.kt-learn b { color: var(--state-learn); }
+.kt-tile.kt-review b { color: var(--state-review); }
+.kt-tile.kt-zero b { color: var(--kt-muted); opacity: 0.6; }
+
+.kt-decks { display: flex; flex-direction: column; gap: 10px; margin-top: 28px; }
+.kt-deck { background: var(--kt-panel); border-radius: 14px; padding: 6px; }
+.kt-row { display: flex; align-items: center; gap: 8px; padding: 8px 8px 8px 4px; border-radius: 10px; cursor: pointer; }
+.kt-row:hover { background: color-mix(in srgb, var(--kt-fg) 6%, transparent); }
+.kt-name { flex: 1; font-size: 17px; font-weight: 600; }
+.kt-level1 { padding-left: 28px; } .kt-level2 { padding-left: 52px; } .kt-level3 { padding-left: 76px; }
+.kt-level1 .kt-name, .kt-level2 .kt-name, .kt-level3 .kt-name { font-size: 15px; font-weight: 500; }
+.kt-current .kt-name::after { content: ""; display: inline-block; width: 6px; height: 6px; border-radius: 50%;
+  background: var(--kt-accent); margin-left: 8px; vertical-align: middle; }
+.kt-counts { display: flex; gap: 6px; font-variant-numeric: tabular-nums; }
+.kt-counts span { min-width: 22px; text-align: center; font-size: 13px; font-weight: 600; padding: 2px 8px; border-radius: 999px;
+  background: color-mix(in srgb, currentColor 14%, transparent); }
+.kt-counts .kt-new { color: var(--state-new); }
+.kt-counts .kt-learn { color: var(--state-learn); }
+.kt-counts .kt-review { color: var(--state-review); }
+.kt-counts .kt-zero { color: var(--kt-muted); background: none; font-weight: 400; opacity: 0.6; }
+.kt-fold, .kt-gear { display: flex; flex: none; width: 24px; height: 24px; padding: 3px; box-sizing: border-box; border: 0;
+  background: none; color: var(--kt-muted); cursor: pointer; border-radius: 6px; }
+.kt-fold:hover, .kt-gear:hover { color: var(--kt-accent); }
+.kt-fold svg, .kt-gear svg { width: 100%; height: 100%; fill: none; stroke: currentColor; stroke-width: 2;
+  stroke-linecap: round; stroke-linejoin: round; transition: transform 0.15s; }
+.kt-fold.kt-open svg { transform: rotate(90deg); }
+.kt-bar { height: 4px; border-radius: 2px; background: color-mix(in srgb, var(--kt-fg) 8%, transparent); margin: 6px 12px 6px; overflow: hidden; }
+.kt-bar span { display: block; height: 100%; border-radius: inherit; background: var(--kt-accent); }
+.kt-foot { color: var(--kt-muted); font-size: 13px; text-align: center; margin-top: 28px; }
+
+.kt-study { display: flex; flex-direction: column; align-items: center; gap: 2px; width: 100%; box-sizing: border-box; margin: 16px 0 0; padding: 14px;
+  border: 0; border-radius: 14px; background: var(--kt-accent); color: var(--kt-on-accent); cursor: pointer;
+  font: inherit; font-size: 18px; font-weight: 600; }
+.kt-study:hover, .kt-study:focus-visible { filter: brightness(1.08); outline: none; }
+.kt-study small { font-size: 13px; font-weight: 400; opacity: 0.85; }
+.kt-overview .kt-bar { margin: 12px 4px 0; }
+.kt-done { margin-top: 16px; padding: 16px; border-radius: 14px; background: var(--kt-panel); text-align: center; color: var(--kt-muted); }
+.kt-desc { margin-top: 24px; color: var(--kt-muted); font-size: 14px; }
+.kt-desc:empty { display: none; }
+
+/* ===== Top toolbar (Decks · Add · Browse · Stats · Sync) ===== */
+.header, #outer, #outer button { font-family: "Noto Sans CJK JP", "Noto Sans JP", system-ui, sans-serif !important; }
+.header { background: var(--kt-bg) !important; border: 0 !important; }
+/* Anki draws the links in a raised tray with their own backgrounds; flatten it to plain links on the page */
+.header .toolbar { background: none !important; box-shadow: none !important; backdrop-filter: none !important; }
+.header .hitem { background: none !important; border: 0 !important; color: var(--kt-muted) !important; font-weight: 600;
+  padding: 4px 14px !important; border-radius: 999px; text-decoration: none !important; }
+.header .hitem:hover { color: var(--kt-fg) !important; background: var(--kt-panel) !important; }
+
+/* ===== Bottom bars (deck buttons, study screen, review) ===== */
+#outer { background: var(--kt-bg); border-top: 1px solid var(--kt-line); }
+#outer button { border-radius: 999px !important; border: 1px solid var(--kt-line) !important; background: var(--kt-panel) !important;
+  color: var(--kt-fg) !important; box-shadow: none !important; padding: 5px 16px !important; }
+#outer button:hover { border-color: var(--kt-accent) !important; }
+#outer #ansbut { background: var(--kt-accent) !important; border-color: var(--kt-accent) !important; color: var(--kt-on-accent) !important;
+  font-weight: 600; min-width: 220px; }
+#outer #ansbut .stattxt, #outer #ansbut span { color: inherit !important; opacity: 0.85; }
+/* Answer buttons: soft tints, Good filled with the accent */
+#outer button[data-ease] { min-width: 76px; padding: 5px 12px !important; font-weight: 600; }
+/* Interval labels sit above the buttons (Anki positions them), so they need their own colour */
+#outer button[data-ease] .nobold { color: var(--kt-muted) !important; font-size: 11px; font-weight: 400; }
+#outer button[data-ease="1"] { color: var(--state-learn) !important; background: color-mix(in srgb, var(--state-learn) 12%, var(--kt-panel)) !important; }
+#outer button[data-ease="2"] { color: var(--kt-muted) !important; }
+#outer button[data-ease="3"] { background: var(--kt-accent) !important; border-color: var(--kt-accent) !important; color: var(--kt-on-accent) !important; }
+#outer button[data-ease="4"] { color: var(--state-new) !important; background: color-mix(in srgb, var(--state-new) 12%, var(--kt-panel)) !important; }
