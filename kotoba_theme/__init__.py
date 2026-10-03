@@ -63,7 +63,7 @@ def apply_theme(*_args, force=False):
 def storage_script():
     """Restore saved jp-* entries, and report changes back to Python."""
     return f"""<script>(function () {{
-  var saved = {json.dumps(stored())};
+  var saved = {json.dumps(stored()).replace("</", "<\\/")};
   try {{ for (var k in saved) localStorage.setItem(k, saved[k]); }} catch (e) {{}}
   var set = Storage.prototype.setItem, del = Storage.prototype.removeItem;
   function report(store, k, v) {{
