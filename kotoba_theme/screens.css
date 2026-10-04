@@ -131,6 +131,11 @@ body:has(.kt) { background: var(--kt-bg); margin: 0; }
 .kt-mode:hover { color: var(--kt-fg); }
 .kt-mode.kt-on { background: var(--kt-accent); color: var(--kt-on-accent); }
 .kt-themes { display: flex; flex-direction: column; gap: 2px; }
+/* Anki styles every button on its pages (margin: 0 4px, a border on hover, a shadow when pressed, semi-bold), which
+   pushed the menu's rows past its edge. These small buttons draw themselves, so those are switched off. */
+.kt-settings button, .kt-settings button:hover, .kt-settings button:active,
+.kt-row button, .kt-row button:hover, .kt-row button:active {
+  box-sizing: border-box; margin: 0; border: 0; box-shadow: none; font-weight: inherit; }
 .kt-theme { display: flex; align-items: center; gap: 10px; width: 100%; padding: 5px 8px 5px 6px; border: 0; border-radius: 9px;
   background: none; color: var(--kt-fg); font: inherit; font-size: 13px; text-align: left; cursor: pointer; }
 .kt-theme:hover { background: color-mix(in srgb, var(--kt-fg) 7%, transparent); }
