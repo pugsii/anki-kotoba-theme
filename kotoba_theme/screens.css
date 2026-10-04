@@ -29,7 +29,8 @@ body:has(.kt) { background: var(--kt-bg); margin: 0; }
 .kt-heat i.f2, .kt-legend i.f2 { box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--kt-accent) 60%, transparent); }
 .kt-heat i.f3 { box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--kt-accent) 80%, transparent); }
 .kt-heat i.f4 { box-shadow: inset 0 0 0 2px var(--kt-accent); }
-.kt-heat i.today { outline: 1.5px solid var(--kt-fg); outline-offset: 1px; }
+/* Today: a round cell with a ring, so it reads as "you are here" and not as a due (outlined square) day */
+.kt-heat i.today, .kt-legend i.today { border-radius: 50%; box-shadow: 0 0 0 1.5px var(--kt-fg); }
 .kt-heat i[onclick] { cursor: pointer; }
 .kt-heat i[onclick]:hover { outline: 1.5px solid var(--kt-muted); outline-offset: 1px; }
 .kt-heatstats { display: flex; flex-wrap: wrap; justify-content: center; gap: 4px 18px; margin-top: 12px;
@@ -111,3 +112,18 @@ body:has(.kt) { background: var(--kt-bg); margin: 0; }
 #outer button[data-ease="2"] { color: var(--kt-muted) !important; }
 #outer button[data-ease="3"] { background: var(--kt-accent) !important; border-color: var(--kt-accent) !important; color: var(--kt-on-accent) !important; }
 #outer button[data-ease="4"] { color: var(--state-new) !important; background: color-mix(in srgb, var(--state-new) 12%, var(--kt-panel)) !important; }
+
+/* Theme picker (top right of the home screen): light/dark/auto, then one swatch per theme */
+.kt-hero { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+.kt-picker { display: flex; flex-direction: column; align-items: flex-end; gap: 8px; }
+.kt-modes { display: inline-flex; background: var(--kt-panel); border-radius: 999px; padding: 3px; }
+.kt-mode { font: inherit; font-size: 12px; border: 0; background: none; color: var(--kt-muted); padding: 3px 11px;
+  border-radius: 999px; cursor: pointer; }
+.kt-mode:hover { color: var(--kt-fg); }
+.kt-mode.kt-on { background: var(--kt-accent); color: var(--kt-on-accent); }
+.kt-swatches { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 6px; }
+.kt-swatch { width: 18px; height: 18px; padding: 0; border-radius: 50%; cursor: pointer;
+  border: 1px solid color-mix(in srgb, var(--kt-fg) 25%, transparent);
+  background: linear-gradient(135deg, var(--a) 50%, var(--b) 50%); transition: transform 0.12s; }
+.kt-swatch:hover { transform: scale(1.15); }
+.kt-swatch.kt-on { box-shadow: 0 0 0 2px var(--kt-bg), 0 0 0 3.5px var(--kt-fg); }

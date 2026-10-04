@@ -80,7 +80,7 @@ def heatmap(stats, today, deck_id=0):
             click = f"kt-due:{offset}:{deck_id}" if n else ""
         cls += " today" if offset == 0 else ""
         handler = f' onclick="pycmd(\'{click}\')"' if click else ""
-        cells.append(f'<i class="{cls}" title="{d.day} {d:%b}: {tip}"{handler}></i>')
+        cells.append(f'<i class="{cls}" title="{"Today" if offset == 0 else f"{d.day} {d:%b}"}: {tip}"{handler}></i>')
         d += day
     facts = [(stats["average"], "daily average"), (f'{stats["studied_pct"]}%', "of days studied"),
              (stats["longest"], "longest streak"), (stats["streak"], "current streak")]
@@ -91,24 +91,39 @@ def heatmap(stats, today, deck_id=0):
     <div class="kt-heat">{"".join(cells)}</div>
   </div>
   <div class="kt-heatstats">{"".join(f"<span><b>{v}</b> {label}</span>" for v, label in facts)}
-    <span class="kt-legend"><i class="l2"></i> reviewed <i class="f f2"></i> due</span></div>
+    <span class="kt-legend"><i class="l2"></i> reviewed <i class="f f2"></i> due <i class="l0 today"></i> today</span></div>
 </section>"""
 
 
-def home(decks, stats, now=None):
+def theme_picker(picker):
+    """Light/Dark/Auto plus one swatch per theme (its background and accent). picker: {"themes": [(name, bg,
+    accent)], "current": name, "mode": "light" | "dark" | "auto"}; clicks send kt-mode:<mode> / kt-theme:<name>."""
+    if not picker or not picker["themes"]:
+        return ""
+    modes = "".join(f'<button class="kt-mode{" kt-on" if picker["mode"] == m else ""}" onclick="return pycmd(\'kt-mode:{m}\')">'
+                    f'{label}</button>' for m, label in (("light", "Light"), ("dark", "Dark"), ("auto", "Auto")))
+    swatches = "".join(f'<button class="kt-swatch{" kt-on" if name == picker["current"] else ""}" title="{escape(name)}" '
+                       f'aria-label="{escape(name)} theme" style="--a:{bg};--b:{accent}" '
+                       f'onclick="return pycmd(\'kt-theme:{escape(name)}\')"></button>' for name, bg, accent in picker["themes"])
+    return f'<div class="kt-picker"><div class="kt-modes">{modes}</div><div class="kt-swatches">{swatches}</div></div>'
+
+
+def home(decks, stats, now=None, picker=None):
     """decks: [{id, name, new, learn, review, done, collapsed, current, children}];
-    stats: core.review_stats plus "studied" (Anki's summary line) and "today" (the Anki day's date)."""
+    stats: core.review_stats plus "studied" (Anki's summary line) and "today" (the Anki day's date);
+    picker: see theme_picker (None hides it)."""
     now = now or datetime.datetime.now()
     tiles = [(stats["due"], "due today"), (stats["done"], "done today"),
              (stats["streak"], "day streak"), (f'~{stats["minutes"]}', "minutes left")]
     deck_cards = "".join(
-        f'<section class="kt-deck">{deck_row(d, 0)}{progress(d["done"], d["new"] + d["learn"] + d["review"])}</section>'
+        f'<section class="kt-deck">{deck_row(d, 0)}</section>'
         for d in decks)
     return f"""
 <div class="kt kt-home">
   <header class="kt-hero">
-    <div class="kt-date">{now.month}月{now.day}日（{WEEKDAYS[now.weekday()]}）</div>
-    <h1>{greeting(now.hour)}</h1>
+    <div><div class="kt-date">{now.month}月{now.day}日（{WEEKDAYS[now.weekday()]}）</div>
+    <h1>{greeting(now.hour)}</h1></div>
+    {theme_picker(picker)}
   </header>
   <div class="kt-tiles">{"".join(f'<div class="kt-tile"><b>{v}</b><span>{label}</span></div>' for v, label in tiles)}</div>
   {heatmap(stats, stats.get("today", now.date()))}

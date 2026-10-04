@@ -10,13 +10,14 @@ and restart Anki.
 """
 import datetime
 import json
+import re
 from pathlib import Path
 
 import aqt
 from aqt import colors, gui_hooks, mw
 from aqt.deckbrowser import DeckBrowser
 from aqt.overview import Overview
-from aqt.theme import theme_manager
+from aqt.theme import Theme, theme_manager
 
 from . import core, screens
 
@@ -108,7 +109,41 @@ def home_html(browser):
         rollup(d)
     stats["studied"] = data.studied_today
     stats["today"] = anki_today()
-    return screens.home(decks, stats)
+    return screens.home(decks, stats, picker=picker_data())
+
+
+def picker_data():
+    """The home screen's theme picker: every theme in the Kotoba Styling (swatch colours for the current mode),
+    the theme in use, and Anki's light/dark/auto setting. None without the Kotoba note type."""
+    model = mw.col.models.by_name("Kotoba")
+    if not model:
+        return None
+    mode = "dark" if theme_manager.night_mode else "light"
+    themes = [(name, p[mode]["bg"], p[mode]["accent"]) for name, p in core.palettes(model["css"]).items()]
+    (current, _), _ = palette()
+    return {"themes": themes, "current": current,
+            "mode": {Theme.LIGHT: "light", Theme.DARK: "dark"}.get(mw.pm.theme(), "auto")}
+
+
+def choose_theme(name):
+    """Picker: make `name` the theme everywhere. It's the synced default in the Kotoba Styling, so cards on
+    every device follow, and this device's ⚙ override (if any) is cleared so it doesn't win."""
+    model = mw.col.models.by_name("Kotoba")
+    if not model or name not in core.palettes(model["css"]):
+        return
+    model["css"] = re.sub(r'--theme:\s*"[^"]*";', f'--theme: "{name}";', model["css"], count=1)
+    mw.col.models.update_dict(model)
+    config = mw.addonManager.getConfig(__name__) or {}
+    store = config.setdefault("storage", {})
+    try:
+        settings = json.loads(store.get("jp-settings") or "{}")
+    except ValueError:
+        settings = {}
+    if settings.pop("theme", None) is not None:
+        store["jp-settings"] = json.dumps(settings)
+        mw.addonManager.writeConfig(__name__, config)
+    apply_theme(force=True)
+    mw.deckBrowser.refresh()
 
 
 def overview_html(overview):
@@ -149,6 +184,13 @@ def on_page_style(webview):
 
 
 def on_message(handled, message, context):
+    if message.startswith("kt-theme:"):
+        choose_theme(message[len("kt-theme:"):])
+        return True, None
+    if message.startswith("kt-mode:"):
+        mw.set_theme({"light": Theme.LIGHT, "dark": Theme.DARK}.get(message[len("kt-mode:"):], Theme.FOLLOW_SYSTEM))
+        mw.deckBrowser.refresh()
+        return True, None
     if message.startswith(("kt-day:", "kt-due:")):
         kind, offset, deck_id = message.split(":")
         browse_day(kind, int(offset), int(deck_id))
