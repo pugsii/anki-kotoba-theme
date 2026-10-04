@@ -19,6 +19,7 @@ def main():
             rel = path.relative_to(ADDON)
             if path.is_file() and "__pycache__" not in rel.parts and path.suffix != ".pyc" and rel.name != "meta.json":
                 z.write(path, rel.as_posix())  # Anki wants the add-on's files at the top
+        z.write(ROOT / "LICENSE", "LICENSE.txt")
     print(f"{OUT.relative_to(ROOT)}: {OUT.stat().st_size / 1e6:.1f} MB")
 
 
