@@ -1,0 +1,5 @@
+__pycache__/
+*.pyc
+dist/
+# your settings and saved card state, made by Anki
+kotoba_theme/meta.json
