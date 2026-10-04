@@ -19,11 +19,13 @@ JP.themes = ["washi", "ai", "matcha", "sakura", "sumi", "yamabuki", "umi", "fuji
 JP.read = function (defaultsOnly) {
   var css = getComputedStyle(document.body);
   var get = function (k) { return css.getPropertyValue(k).trim().replace(/^["']|["']$/g, ""); };
-  var s = { theme: get("--theme"), layout: get("--sentence-layout"), dictOrder: get("--dict-order") };
+  var s = { theme: get("--theme"), layout: get("--sentence-layout"), dictOrder: get("--dict-order"), motion: get("--motion") };
   if (!defaultsOnly) try {
     var local = JSON.parse(localStorage.getItem("jp-settings") || "{}");
     for (var k in local) s[k] = local[k];
   } catch (e) {}
+  if (s.motion !== "on" && s.motion !== "off")  // "auto", or a Styling from before the setting
+    s.motion = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches ? "off" : "on";
   return s;
 };
 JP.apply = function (s) {

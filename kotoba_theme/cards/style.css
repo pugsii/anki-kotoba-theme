@@ -10,6 +10,9 @@
   --dict-order: "Jitendex, JMdict, Wiktionary EN, Wiktionary 国語, 明鏡国語辞典, 大辞林, 大辞泉, 漢字";
   /* Example sentences: "horizontal" or "vertical" (縦書き, like novels and manga) */
   --sentence-layout: "horizontal";
+  /* Animated scene pictures: "on", "off" (a still frame), or "auto" (off when the
+     device asks for reduced motion) */
+  --motion: "auto";
 }
 
 /* Fonts for the front's random font. Files live in Anki's media folder; the leading
@@ -118,7 +121,7 @@ div.hint { color: var(--fg); font-size: 20px; }
 /* ===== Back: the example's picture above it, then one dot per example (tap to switch) ===== */
 .picture { margin-top: 20px; }
 .picture.multi, .ex-dots span { cursor: pointer; }
-.picture img { display: block; margin: 0 auto; max-width: 100%; max-height: 240px; border-radius: 10px; }
+.picture img, .picture canvas { display: block; margin: 0 auto; max-width: 100%; max-height: 240px; border-radius: 10px; }
 .ex-dots { display: flex; justify-content: center; align-items: center; height: 6px; margin-top: 12px; }
 .ex-dots[hidden] { display: none; }
 .picture[hidden] + .ex-dots { margin-top: 20px; }
@@ -170,7 +173,8 @@ dialog.settings::backdrop { background: rgba(0, 0, 0, 0.45); }
 .settings h2 { font-size: 17px; margin: 0 0 12px; }
 .settings .row { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin: 12px 0; }
 .settings .label { margin: 16px 0 6px; }
-.settings select, .settings button { font: inherit; font-size: 14px; color: var(--fg); background: var(--panel);
+/* margin: 0 undoes the reviewer's own button margins (14px 7px), which split the segmented buttons */
+.settings select, .settings button { font: inherit; font-size: 14px; color: var(--fg); background: var(--panel); margin: 0;
   border: 1px solid var(--line); border-radius: 8px; padding: 6px 10px; cursor: pointer; }
 .settings button:disabled { opacity: 0.35; cursor: default; }
 .settings .seg { display: inline-flex; }

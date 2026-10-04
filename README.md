@@ -29,7 +29,7 @@ An Anki add-on with two parts: a theme that recolours and redesigns Anki, and **
 - **Back:** reading with pitch accent, a blurred one-word meaning, and up to three example sentences: tap the left or right of the sentence box to move between them, the middle to show the translation, furigana and grammar notes. Each sentence can have its own picture, audio and source.
 - **Dictionaries as tabs,** in the order you choose, from Yomitan's `{glossary}` output.
 - **A Listening card** for notes with sentence audio: hear the line first, then see it.
-- **A ⚙ on every card** to change the theme, dictionary order or sentence layout (horizontal or vertical 縦書き) on that device. The defaults for every device are at the top of the note type's Styling.
+- **A ⚙ on every card** to change the theme, dictionary order, sentence layout (horizontal or vertical 縦書き) or motion (animated pictures playing, or a still) on that device. The defaults for every device are at the top of the note type's Styling.
 
 <p>
 <img src="docs/screenshots/card-front.png" width="49%" alt="A card's front: the word 再現 alone">

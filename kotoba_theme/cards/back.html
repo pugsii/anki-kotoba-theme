@@ -40,11 +40,13 @@ JP.themes = ["washi", "ai", "matcha", "sakura", "sumi", "yamabuki", "umi", "fuji
 JP.read = function (defaultsOnly) {
   var css = getComputedStyle(document.body);
   var get = function (k) { return css.getPropertyValue(k).trim().replace(/^["']|["']$/g, ""); };
-  var s = { theme: get("--theme"), layout: get("--sentence-layout"), dictOrder: get("--dict-order") };
+  var s = { theme: get("--theme"), layout: get("--sentence-layout"), dictOrder: get("--dict-order"), motion: get("--motion") };
   if (!defaultsOnly) try {
     var local = JSON.parse(localStorage.getItem("jp-settings") || "{}");
     for (var k in local) s[k] = local[k];
   } catch (e) {}
+  if (s.motion !== "on" && s.motion !== "off")  // "auto", or a Styling from before the setting
+    s.motion = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches ? "off" : "on";
   return s;
 };
 JP.apply = function (s) {
@@ -54,6 +56,26 @@ JP.apply = function (s) {
   cls.add("t-" + theme);
   cls.toggle("s-vertical", s.layout === "vertical");
   if (JP.renderDicts) JP.renderDicts(s.dictOrder);
+  JP.motion = s.motion;
+  JP.freeze();
+};
+// Motion off: each animated picture (WebP or GIF) is covered by a still of its first frame, drawn on a canvas.
+JP.freeze = function () {
+  [].forEach.call(document.querySelectorAll(".picture canvas"), function (c) { c.remove(); });
+  [].forEach.call(document.querySelectorAll(".picture img"), function (img) {
+    img.style.display = "";
+    if (JP.motion !== "off" || !/\.(webp|gif)(\?|$)/i.test(img.getAttribute("src") || "")) return;
+    var still = function () {
+      if (JP.motion !== "off" || !img.isConnected || img.style.display) return;
+      var c = document.createElement("canvas");
+      c.width = img.naturalWidth;
+      c.height = img.naturalHeight;
+      c.getContext("2d").drawImage(img, 0, 0);
+      img.style.display = "none";
+      img.parentNode.insertBefore(c, img);
+    };
+    if (img.complete && img.naturalWidth) still(); else img.addEventListener("load", still);
+  });
 };
 
 // ----- Example sentences and pictures -----
@@ -91,6 +113,7 @@ JP.apply = function (s) {
     dots.innerHTML = Array.apply(null, Array(n)).map(function (_, j) {
       return '<span data-i="' + j + '"' + (j === i ? ' class="on"' : "") + "></span>";
     }).join("");
+    JP.freeze();
   }
   function go(j) { i = (j + n) % n; show(); }
 
@@ -181,6 +204,8 @@ document.querySelector(".cog").onclick = function () {
     }).join("") + "</select></label>" +
     '<div class="row">Sentences <span class="seg">' +
       '<button data-layout="horizontal">横 Horizontal</button><button data-layout="vertical">縦 Vertical</button></span></div>' +
+    '<div class="row">Motion <span class="seg">' +
+      '<button data-motion="on">On</button><button data-motion="off">Off</button></span></div>' +
     '<div class="label">Dictionary order</div><ol class="dict-list"></ol>' +
     '<div class="actions">' + (hasOverride ? '<button data-act="reset" class="plain">Reset to defaults</button>' : "") +
       '<button data-act="cancel">Cancel</button><button data-act="save" class="primary">Save</button></div>';
@@ -195,6 +220,7 @@ document.querySelector(".cog").onclick = function () {
         '<button data-move="1" data-i="' + i + '"' + (i < dicts.length - 1 ? "" : " disabled") + ' aria-label="Move down">↓</button></li>';
     }).join("");
     dlg.querySelectorAll("[data-layout]").forEach(function (b) { b.classList.toggle("on", b.dataset.layout === cur.layout); });
+    dlg.querySelectorAll("[data-motion]").forEach(function (b) { b.classList.toggle("on", b.dataset.motion === cur.motion); });
     JP.apply(cur);
   }
   function close(restore) {
@@ -206,6 +232,9 @@ document.querySelector(".cog").onclick = function () {
   dlg.querySelector("select").onchange = function () { cur.theme = this.value; update(); };
   dlg.querySelectorAll("[data-layout]").forEach(function (b) {
     b.onclick = function () { cur.layout = b.dataset.layout; update(); };
+  });
+  dlg.querySelectorAll("[data-motion]").forEach(function (b) {
+    b.onclick = function () { cur.motion = b.dataset.motion; update(); };
   });
   list.onclick = function (e) {
     var b = e.target.closest("[data-move]");
