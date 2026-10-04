@@ -50,7 +50,7 @@ An Anki add-on with two parts: a theme that recolours and redesigns Anki, and **
 | PitchAccent | downstep numbers, e.g. `0` or `0,2` |
 | WordAudio, Notes, Frequency | the word's audio, your notes, a frequency rank |
 
-The **Jellyfin Miner** add-on fills all of these from the anime you watch.
+The [Jellyfin Miner](https://github.com/pugsii/anki-jellyfin-miner) add-on fills all of these from the anime you watch.
 
 ## Install
 
