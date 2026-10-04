@@ -1,0 +1,52 @@
+<div class="front">
+  <div id="word" class="word">{{kanji:Word}}</div>
+  {{#Sentence}}<div class="context">{{hint:kanji:Sentence}}</div>{{/Sentence}}
+</div>
+
+<script>
+// Per-card state lives on JP, rebuilt for every card (desktop Anki keeps one page and reruns this script).
+var JP = { renderDicts: null };
+
+// ----- Settings (keep identical to the back template) -----
+// Defaults come from the settings block at the top of Styling (synced); the ⚙ panel on the back
+// saves overrides on this device in localStorage "jp-settings".
+JP.themes = ["washi", "ai", "matcha", "sakura", "sumi", "yamabuki", "umi", "fuji", "kissa", "yoru", "urushi", "hotaru", "neon"];
+JP.read = function (defaultsOnly) {
+  var css = getComputedStyle(document.body);
+  var get = function (k) { return css.getPropertyValue(k).trim().replace(/^["']|["']$/g, ""); };
+  var s = { theme: get("--theme"), layout: get("--sentence-layout"), dictOrder: get("--dict-order") };
+  if (!defaultsOnly) try {
+    var local = JSON.parse(localStorage.getItem("jp-settings") || "{}");
+    for (var k in local) s[k] = local[k];
+  } catch (e) {}
+  return s;
+};
+JP.apply = function (s) {
+  var theme = s.theme === "weekly" ? JP.themes[Math.floor(Date.now() / 6048e5) % JP.themes.length] : s.theme;
+  var cls = document.body.classList;
+  JP.themes.forEach(function (t) { cls.remove("t-" + t); });
+  cls.add("t-" + theme);
+  cls.toggle("s-vertical", s.layout === "vertical");
+  if (JP.renderDicts) JP.renderDicts(s.dictOrder);
+};
+JP.apply(JP.read());
+
+// ----- Word: random font, sometimes vertical, so you learn the word rather than its look -----
+(function () {
+  var w = document.getElementById("word");
+  var fonts = ["f-sans", "f-serif", "f-pen", "f-round"];
+  w.className = "word " + fonts[Math.floor(Math.random() * fonts.length)];
+  if (w.textContent.trim().length > 1 && Math.random() < 0.25) w.className += " word-vertical";
+})();
+
+// ----- Sentence hint: pick one of the sentences (separated by horizontal lines) -----
+// sessionStorage "jp-ex" tells the back which one was shown.
+(function () {
+  var hint = document.querySelector("div.hint");
+  if (!hint) return;
+  var parts = hint.innerHTML.split(/<hr[^>]*>/i);
+  var i = Math.floor(Math.random() * parts.length);
+  try { sessionStorage.setItem("jp-ex", document.getElementById("word").textContent + "|" + i); } catch (e) {}
+  hint.innerHTML = parts[i];
+})();
+</script>

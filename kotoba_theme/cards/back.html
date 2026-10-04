@@ -1,0 +1,254 @@
+<div class="back" data-card="{{CardID}}">
+  <div class="word">{{kanji:Word}}</div>
+  <div class="reading" data-pitch="{{PitchAccent}}">{{kana:Word}}</div>
+  <div class="audio">{{WordAudio}}</div>
+  {{#Gloss}}<div class="gloss spoiler" onclick="this.classList.toggle('shown')">{{Gloss}}</div>{{/Gloss}}
+
+  <div class="picture" data-ex>{{Picture}}</div>
+  <div class="ex-dots" hidden></div>
+  {{#Sentence}}
+  <div class="example">
+    <div class="sentence" data-ex>{{furigana:Sentence}}</div>
+    <div class="translation spoiler" data-ex>{{SentenceTranslation}}</div>
+    <div class="grammar spoiler" data-ex>{{Grammar}}</div>
+    <div class="ex-row">
+      <span data-ex>{{SentenceAudio}}</span>
+      <span class="source" data-ex>{{Source}}</span>
+    </div>
+  </div>
+  {{/Sentence}}
+  {{#Notes}}<details><summary>Notes</summary><div class="more">{{Notes}}</div></details>{{/Notes}}
+  {{#Definitions}}<div id="dicts" class="dicts">{{Definitions}}</div>{{/Definitions}}
+
+  <div class="meta">
+    <button class="cog" aria-label="Card settings" title="Card settings"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></button>
+    {{#Frequency}}<span>freq #{{Frequency}}</span>{{/Frequency}}
+  </div>
+</div>
+
+<script>
+// Per-card state lives on JP, rebuilt for every card (desktop Anki keeps one page and reruns this script).
+// Storage used: localStorage "jp-settings" (⚙ overrides, per device); sessionStorage "jp-ex" (which
+// sentence the front showed).
+var JP = { renderDicts: null, dictNames: [] };
+JP.esc = function (s) { return String(s).replace(/[&<>"]/g, function (c) { return "&#" + c.charCodeAt(0) + ";"; }); };
+
+// ----- Settings (keep identical to the front template) -----
+// Defaults come from the settings block at the top of Styling (synced); the ⚙ panel on the back
+// saves overrides on this device in localStorage "jp-settings".
+JP.themes = ["washi", "ai", "matcha", "sakura", "sumi", "yamabuki", "umi", "fuji", "kissa", "yoru", "urushi", "hotaru", "neon"];
+JP.read = function (defaultsOnly) {
+  var css = getComputedStyle(document.body);
+  var get = function (k) { return css.getPropertyValue(k).trim().replace(/^["']|["']$/g, ""); };
+  var s = { theme: get("--theme"), layout: get("--sentence-layout"), dictOrder: get("--dict-order") };
+  if (!defaultsOnly) try {
+    var local = JSON.parse(localStorage.getItem("jp-settings") || "{}");
+    for (var k in local) s[k] = local[k];
+  } catch (e) {}
+  return s;
+};
+JP.apply = function (s) {
+  var theme = s.theme === "weekly" ? JP.themes[Math.floor(Date.now() / 6048e5) % JP.themes.length] : s.theme;
+  var cls = document.body.classList;
+  JP.themes.forEach(function (t) { cls.remove("t-" + t); });
+  cls.add("t-" + theme);
+  cls.toggle("s-vertical", s.layout === "vertical");
+  if (JP.renderDicts) JP.renderDicts(s.dictOrder);
+};
+
+// ----- Example sentences and pictures -----
+// Sentence, SentenceTranslation, SentenceAudio, Picture and Source hold one entry per sentence,
+// separated by horizontal lines. A field with a single entry applies to every sentence.
+(function () {
+  var split = function (html) { return html.split(/<hr[^>]*>/i); };
+  var els = [].slice.call(document.querySelectorAll("[data-ex]"));
+  var entries = els.map(function (el) { return split(el.innerHTML); });
+  var sentence = document.querySelector(".sentence");
+  var n = sentence ? split(sentence.innerHTML).length : 1;
+  var word = document.querySelector(".back .word").textContent;
+  var pic = document.querySelector(".picture");
+  var dots = document.querySelector(".ex-dots");
+
+  // Show the sentence the front picked; otherwise a random one.
+  var i = Math.floor(Math.random() * n);
+  try {
+    var shown = (sessionStorage.getItem("jp-ex") || "").split("|");
+    if (shown[0] === word && +shown[1] < n) i = +shown[1];
+  } catch (e) {}
+
+  function show() {
+    els.forEach(function (el, k) {
+      var parts = entries[k];
+      el.innerHTML = (parts.length === 1 ? parts[0] : parts[i] || "")
+        // Extra sentence audio is stored as <audio> so Anki doesn't autoplay every clip.
+        .replace(/<audio\b[^>]*\bsrc=["']([^"']+)["'][^>]*>(\s*<\/audio>)?/gi,
+          '<a class="replay" href="#" onclick="new Audio(\'$1\').play();return false;">▶</a>');
+      el.hidden = !el.textContent.trim() && !el.querySelector("img, a");
+      el.classList.remove("shown", "show");
+    });
+    // One dot per example, the current one highlighted
+    dots.hidden = n < 2;
+    dots.innerHTML = Array.apply(null, Array(n)).map(function (_, j) {
+      return '<span data-i="' + j + '"' + (j === i ? ' class="on"' : "") + "></span>";
+    }).join("");
+  }
+  function go(j) { i = (j + n) % n; show(); }
+
+  // Tap a dot for that example, or the picture for the next one
+  dots.onclick = function (e) { if (e.target.dataset.i != null) go(+e.target.dataset.i); };
+  pic.classList.toggle("multi", n > 1);
+  pic.onclick = function () { if (n > 1) go(i + 1); };
+
+  // Sentence box: tap the left or right third for the previous or next example, the middle to
+  // show or hide the translation, grammar notes and furigana. Play buttons and links keep their own taps.
+  var box = document.querySelector(".example");
+  if (box) box.onclick = function (e) {
+    if (e.target.closest("a, button, audio")) return;
+    var r = box.getBoundingClientRect(), x = (e.clientX - r.left) / r.width;
+    if (n > 1 && x < 1 / 3) go(i - 1);
+    else if (n > 1 && x > 2 / 3) go(i + 1);
+    else {
+      var shown = !document.querySelector(".translation").classList.contains("shown");
+      [].forEach.call(box.querySelectorAll(".spoiler"), function (el) { el.classList.toggle("shown", shown); });
+      sentence.classList.toggle("show", shown);
+    }
+  };
+  show();
+})();
+
+// ----- Dictionaries: one tab per dictionary, in the dictionary order setting -----
+// Definitions holds Yomitan's {glossary} HTML: <li data-dictionary="Name">...</li> per entry.
+// Names match the order setting from the start and ignore version tags like "[2026-01-04]".
+(function () {
+  var box = document.getElementById("dicts");
+  if (!box) return;
+  var base = function (s) { return s.replace(/\[.*?\]/g, "").trim(); };
+  var key = function (s) { return base(s).toLowerCase(); };
+  var groups = {};
+  box.querySelectorAll("li[data-dictionary]").forEach(function (li) {
+    var name = base(li.getAttribute("data-dictionary"));
+    var label = li.querySelector(":scope > i");  // Yomitan's "(Dictionary name)" prefix
+    if (label && label.textContent.indexOf(name) >= 0) label.remove();
+    if (!groups[name]) { groups[name] = []; JP.dictNames.push(name); }
+    groups[name].push('<div class="entry">' + li.innerHTML + "</div>");
+  });
+  if (!JP.dictNames.length) return;  // not dictionary HTML: show the field as-is
+
+  JP.renderDicts = function (orderSetting) {
+    var order = orderSetting.split(",").map(key).filter(Boolean);
+    var rank = function (name) {
+      for (var r = 0; r < order.length; r++) if (key(name).indexOf(order[r]) === 0) return r;
+      return order.length;
+    };
+    var names = JP.dictNames.slice().sort(function (a, b) { return rank(a) - rank(b) || a.localeCompare(b); });
+    var tabs = names.length > 1
+      ? '<div class="tabs">' + names.map(function (name, t) {
+          return '<button class="tab' + (t ? "" : " on") + '" data-i="' + t + '">' + JP.esc(name) + "</button>";
+        }).join("") + "</div>"
+      : '<div class="dict-name">' + JP.esc(names[0]) + "</div>";
+    box.innerHTML = names.map(function (name, t) {
+      return '<div class="panel"' + (t ? " hidden" : "") + ">" + groups[name].join("") + "</div>";
+    }).join("") + tabs;
+    box.querySelectorAll(".tab").forEach(function (tab) {
+      tab.onclick = function () {
+        box.querySelectorAll(".tab").forEach(function (t) { t.classList.toggle("on", t === tab); });
+        box.querySelectorAll(".panel").forEach(function (p, t) { p.hidden = t !== +tab.dataset.i; });
+      };
+    });
+  };
+})();
+
+JP.apply(JP.read());
+
+// ----- ⚙ settings panel: changes preview live; Save keeps them on this device -----
+document.querySelector(".cog").onclick = function () {
+  var before = JP.read(), cur = JP.read();
+  // Dictionary list: the order setting, then any other dictionaries on this card.
+  var dicts = cur.dictOrder.split(",").map(function (s) { return s.trim(); }).filter(Boolean);
+  JP.dictNames.forEach(function (name) {
+    var listed = dicts.some(function (d) { return name.toLowerCase().indexOf(d.toLowerCase()) === 0; });
+    if (!listed) dicts.push(name);
+  });
+  var hasOverride = false;
+  try { hasOverride = !!localStorage.getItem("jp-settings"); } catch (e) {}
+
+  var dlg = document.createElement("dialog");
+  dlg.className = "settings";
+  dlg.innerHTML =
+    "<h2>Card settings</h2>" +
+    '<label class="row">Theme <select>' + JP.themes.concat("weekly").map(function (t) {
+      return "<option" + (t === cur.theme ? " selected" : "") + ">" + t + "</option>";
+    }).join("") + "</select></label>" +
+    '<div class="row">Sentences <span class="seg">' +
+      '<button data-layout="horizontal">横 Horizontal</button><button data-layout="vertical">縦 Vertical</button></span></div>' +
+    '<div class="label">Dictionary order</div><ol class="dict-list"></ol>' +
+    '<div class="actions">' + (hasOverride ? '<button data-act="reset" class="plain">Reset to defaults</button>' : "") +
+      '<button data-act="cancel">Cancel</button><button data-act="save" class="primary">Save</button></div>';
+  document.body.appendChild(dlg);
+  var list = dlg.querySelector(".dict-list");
+
+  function update() {
+    cur.dictOrder = dicts.join(", ");
+    list.innerHTML = dicts.map(function (d, i) {
+      return "<li><span>" + JP.esc(d) + "</span>" +
+        '<button data-move="-1" data-i="' + i + '"' + (i ? "" : " disabled") + ' aria-label="Move up">↑</button>' +
+        '<button data-move="1" data-i="' + i + '"' + (i < dicts.length - 1 ? "" : " disabled") + ' aria-label="Move down">↓</button></li>';
+    }).join("");
+    dlg.querySelectorAll("[data-layout]").forEach(function (b) { b.classList.toggle("on", b.dataset.layout === cur.layout); });
+    JP.apply(cur);
+  }
+  function close(restore) {
+    if (restore) JP.apply(before);
+    dlg.close();
+    dlg.remove();
+  }
+
+  dlg.querySelector("select").onchange = function () { cur.theme = this.value; update(); };
+  dlg.querySelectorAll("[data-layout]").forEach(function (b) {
+    b.onclick = function () { cur.layout = b.dataset.layout; update(); };
+  });
+  list.onclick = function (e) {
+    var b = e.target.closest("[data-move]");
+    if (!b) return;
+    var i = +b.dataset.i;
+    dicts.splice(i + +b.dataset.move, 0, dicts.splice(i, 1)[0]);
+    update();
+  };
+  dlg.addEventListener("cancel", function (e) { e.preventDefault(); close(true); });  // Esc
+  dlg.querySelector(".actions").onclick = function (e) {
+    var act = (e.target.closest("[data-act]") || {}).dataset;
+    if (!act) return;
+    if (act.act === "cancel") close(true);
+    if (act.act === "reset") {
+      try { localStorage.removeItem("jp-settings"); } catch (err) {}
+      JP.apply(JP.read(true));
+      close(false);
+    }
+    if (act.act === "save") {
+      try { localStorage.setItem("jp-settings", JSON.stringify(cur)); } catch (err) {}
+      close(false);
+    }
+  };
+  update();
+  dlg.showModal();
+};
+
+// ----- Pitch accent drawn over the reading. PitchAccent holds downstep numbers, e.g. "0" or "0,1" -----
+(function () {
+  var el = document.querySelector(".reading");
+  var morae = el.textContent.replace(/\s/g, "").match(/.[ゃゅょぁぃぅぇぉゎャュョァィゥェォヮ]?/g) || [];
+  var names = ["平板", "頭高", "中高", "尾高"];
+  var out = el.dataset.pitch.split(/[,、\s]+/).map(function (p) {
+    var n = parseInt(p, 10), m = morae.length;
+    if (isNaN(n) || n > m) return "";
+    var spans = morae.map(function (mora, i) {
+      var pos = i + 1;
+      var high = n === 0 ? pos > 1 : n === 1 ? pos === 1 : pos > 1 && pos <= n;
+      return '<span class="' + (high ? "h" : "l") + (pos === n ? " drop" : "") + '">' + mora + "</span>";
+    }).join("");
+    var type = n === 0 ? 0 : n === 1 ? 1 : n === m ? 3 : 2;
+    return '<span class="pitch">' + spans + "<small>" + names[type] + " [" + n + "]</small></span>";
+  }).filter(Boolean);
+  if (out.length) el.innerHTML = out.join("");
+})();
+</script>

@@ -5,8 +5,7 @@
 - Keeps the cards' "jp-*" localStorage (⚙ settings, chosen images) across sessions: desktop Anki's web
   storage is in-memory only, so it is saved in this add-on's config and restored on every page.
 
-Install: copy this folder into Anki's addons21 folder (Flatpak: ~/.var/app/net.ankiweb.Anki/data/Anki2/addons21)
-and restart Anki.
+- Ships the Kotoba note type (cards/): Tools → Kotoba: install or update note type.
 """
 import datetime
 import json
@@ -17,11 +16,15 @@ import aqt
 from aqt import colors, gui_hooks, mw
 from aqt.deckbrowser import DeckBrowser
 from aqt.overview import Overview
+from aqt.qt import QAction
 from aqt.theme import Theme, theme_manager
+from aqt.utils import showInfo, showWarning
 
-from . import core, screens
+from . import core, notetype, screens
 
 SCREENS_CSS = (Path(__file__).parent / "screens.css").read_text(encoding="utf-8")
+# The palettes and default theme also ship with the add-on, so it works without the Kotoba note type
+BUNDLED_CSS = (Path(__file__).parent / "cards" / "style.css").read_text(encoding="utf-8")
 state = {"key": None, "vars": ""}
 
 
@@ -29,13 +32,20 @@ def stored():
     return (mw.addonManager.getConfig(__name__) or {}).get("storage", {})
 
 
+def styling():
+    """The Kotoba note type's Styling (palettes and settings), or the bundled copy without it."""
+    model = mw.col.models.by_name(notetype.NAME)
+    return model["css"] if model else BUNDLED_CSS
+
+
 def palette():
-    model = mw.col.models.by_name("Kotoba")
     try:
         override = json.loads(stored().get("jp-settings") or "{}").get("theme")
     except ValueError:
         override = None
-    name, p = core.pick_theme(model["css"] if model else "", override)
+    if not mw.col.models.by_name(notetype.NAME):  # no note type to hold the choice: the add-on's config does
+        override = override or (mw.addonManager.getConfig(__name__) or {}).get("theme")
+    name, p = core.pick_theme(styling(), override)
     mode = "dark" if theme_manager.night_mode else "light"
     return (name, mode), p[mode]
 
@@ -114,13 +124,10 @@ def home_html(browser):
 
 
 def picker_data():
-    """The home screen's theme picker: every theme in the Kotoba Styling (swatch colours for the current mode),
-    the theme in use, and Anki's light/dark/auto setting. None without the Kotoba note type."""
-    model = mw.col.models.by_name("Kotoba")
-    if not model:
-        return None
+    """The home screen's theme picker: every theme (swatch colours for the current mode), the theme in use,
+    and Anki's light/dark/auto setting."""
     mode = "dark" if theme_manager.night_mode else "light"
-    themes = [(name, p[mode]["bg"], p[mode]["fg"], p[mode]["accent"]) for name, p in core.palettes(model["css"]).items()]
+    themes = [(name, p[mode]["bg"], p[mode]["fg"], p[mode]["accent"]) for name, p in core.palettes(styling()).items()]
     (current, _), _ = palette()
     return {"themes": themes, "current": current,
             "mode": {Theme.LIGHT: "light", Theme.DARK: "dark"}.get(mw.pm.theme(), "auto")}
@@ -128,13 +135,18 @@ def picker_data():
 
 def choose_theme(name):
     """Picker: make `name` the theme everywhere. It's the synced default in the Kotoba Styling, so cards on
-    every device follow, and this device's ⚙ override (if any) is cleared so it doesn't win."""
-    model = mw.col.models.by_name("Kotoba")
-    if not model or name not in core.palettes(model["css"]):
+    every device follow, and this device's ⚙ override (if any) is cleared so it doesn't win. Without the note
+    type, it's kept in the add-on's config."""
+    if name not in core.palettes(styling()):
         return
-    model["css"] = re.sub(r'--theme:\s*"[^"]*";', f'--theme: "{name}";', model["css"], count=1)
-    mw.col.models.update_dict(model)
     config = mw.addonManager.getConfig(__name__) or {}
+    model = mw.col.models.by_name(notetype.NAME)
+    if model:
+        model["css"] = re.sub(r'--theme:\s*"[^"]*";', f'--theme: "{name}";', model["css"], count=1)
+        mw.col.models.update_dict(model)
+    else:
+        config["theme"] = name
+        mw.addonManager.writeConfig(__name__, config)
     store = config.setdefault("storage", {})
     try:
         settings = json.loads(store.get("jp-settings") or "{}")
@@ -218,7 +230,32 @@ def on_qt_style(css):
     return css + "QMenuBar { border-bottom: none; }"
 
 
+def install_note_type():
+    """Tools menu: create or update the Kotoba note type (and its fonts)."""
+    (theme, _), _ = palette()
+    created = not mw.col.models.by_name(notetype.NAME)
+    try:
+        done, checks = notetype.install(mw.col)
+    except ValueError as e:
+        return showWarning(str(e))
+    if created:  # keep the theme picked before the note type existed
+        choose_theme(theme)
+    failed = [name for name, ok in checks if not ok]
+    apply_theme(force=True)
+    mw.reset()
+    (showWarning if failed else showInfo)(done + ("\n\nTest card problems: " + ", ".join(failed) if failed else ""))
+
+
+def add_menu():
+    if not getattr(mw, "_kotoba_menu", None):
+        action = QAction("Kotoba: install or update note type", mw)
+        action.triggered.connect(install_note_type)
+        mw.form.menuTools.addAction(action)
+        mw._kotoba_menu = action
+
+
 gui_hooks.style_did_init.append(on_qt_style)
+gui_hooks.main_window_did_init.append(add_menu)
 gui_hooks.profile_did_open.append(lambda: apply_theme(force=True))
 gui_hooks.theme_did_change.append(lambda: apply_theme(force=True))
 gui_hooks.webview_will_set_content.append(on_set_content)

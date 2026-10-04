@@ -1,0 +1,187 @@
+/* ===== Settings: edit here. Applies to every card on every device.
+   The ⚙ button on the back can override these on a single device. ===== */
+.card {
+  /* washi, ai, matcha, sakura, sumi, yamabuki, umi, fuji, kissa,
+     yoru, urushi, hotaru, neon (always dark), or "weekly" to rotate through them */
+  --theme: "ai";
+  /* Dictionaries in display order. Names match from the start and ignore
+     version tags, so "Jitendex" covers "Jitendex.org [2026-01-04]".
+     Dictionaries not listed come after these, alphabetically. */
+  --dict-order: "Jitendex, JMdict, Wiktionary EN, Wiktionary 国語, 明鏡国語辞典, 大辞林, 大辞泉, 漢字";
+  /* Example sentences: "horizontal" or "vertical" (縦書き, like novels and manga) */
+  --sentence-layout: "horizontal";
+}
+
+/* Fonts for the front's random font. Files live in Anki's media folder; the leading
+   underscore stops Check Media from deleting them. */
+@font-face { font-family: "Noto Serif JP"; src: url("_notoserifjp.woff2"); }
+@font-face { font-family: "Klee One"; src: url("_kleeone.woff2"); }
+@font-face { font-family: "Zen Maru Gothic"; src: url("_zenmarugothic.woff2"); }
+
+/* ===== Themes =====
+   Each sets six colours: background, text, muted text, lines, panel (sentence box) and accent.
+   The first line of each pair is light, the second is Anki's night mode. Text contrast is at
+   least 4.5:1 in every theme; keep it that way when adding one (and add it to JP.themes in
+   both templates). */
+.card, .t-washi { --bg: #faf8f4; --fg: #1f1d1a; --muted: #77716a; --line: #e4dfd6; --panel: #f1ede5; --accent: #b4441e; }
+.card:is(.nightMode, .night_mode), .t-washi:is(.nightMode, .night_mode) { --bg: #1c1b19; --fg: #ece8e1; --muted: #9a948b; --line: #3a3732; --panel: #262420; --accent: #f08a5d; }
+.t-ai { --bg: #f5f7fb; --fg: #18202e; --muted: #627089; --line: #dbe2ee; --panel: #e9eef7; --accent: #2f4f9e; }
+.t-ai:is(.nightMode, .night_mode) { --bg: #121826; --fg: #e3e8f2; --muted: #8b97ad; --line: #2a3347; --panel: #1a2234; --accent: #8fb0ff; }
+.t-matcha { --bg: #f6f8f1; --fg: #1d2318; --muted: #6b7562; --line: #dde3d2; --panel: #ebf0e1; --accent: #457026; }
+.t-matcha:is(.nightMode, .night_mode) { --bg: #151a12; --fg: #e4ead9; --muted: #929c86; --line: #2f3828; --panel: #1d2419; --accent: #9ccc65; }
+.t-sakura { --bg: #fdf7f8; --fg: #2a1d21; --muted: #7f646b; --line: #f0dde2; --panel: #f8e9ed; --accent: #b03b60; }
+.t-sakura:is(.nightMode, .night_mode) { --bg: #1d1518; --fg: #f1e4e8; --muted: #a68f96; --line: #3d2c32; --panel: #271c20; --accent: #f48fb1; }
+.t-sumi { --bg: #ffffff; --fg: #111111; --muted: #6e6e6e; --line: #e3e3e3; --panel: #f2f2f2; --accent: #b3261e; }
+.t-sumi:is(.nightMode, .night_mode) { --bg: #0e0e0e; --fg: #e8e8e8; --muted: #8a8a8a; --line: #2a2a2a; --panel: #1a1a1a; --accent: #ff6b5e; }
+.t-yamabuki { --bg: #fdfaf0; --fg: #2a2414; --muted: #756a4c; --line: #efe5c8; --panel: #f8f0d8; --accent: #955405; }
+.t-yamabuki:is(.nightMode, .night_mode) { --bg: #1c180e; --fg: #f2ead2; --muted: #a89d7c; --line: #3a3220; --panel: #262013; --accent: #f2b544; }
+.t-umi { --bg: #f2f8f8; --fg: #102326; --muted: #4f6c70; --line: #d3e5e6; --panel: #e3f0f0; --accent: #0f6b6d; }
+.t-umi:is(.nightMode, .night_mode) { --bg: #0d1b1e; --fg: #dcefef; --muted: #85a7aa; --line: #23383c; --panel: #142a2e; --accent: #4fd1c5; }
+.t-fuji { --bg: #f8f6fc; --fg: #221c2e; --muted: #6a6180; --line: #e4def0; --panel: #efeaf7; --accent: #6b46c1; }
+.t-fuji:is(.nightMode, .night_mode) { --bg: #17141f; --fg: #ebe6f5; --muted: #9d94b3; --line: #322b42; --panel: #201b2c; --accent: #b794f4; }
+.t-kissa { --bg: #f7f1e8; --fg: #2b2018; --muted: #736252; --line: #e6d8c6; --panel: #efe3d3; --accent: #7b4a2b; }
+.t-kissa:is(.nightMode, .night_mode) { --bg: #1e1712; --fg: #eee2d3; --muted: #a8968a; --line: #3a2e25; --panel: #282019; --accent: #d9a27a; }
+/* Always dark */
+.t-yoru, .t-yoru:is(.nightMode, .night_mode) { --bg: #14112a; --fg: #e9e6ff; --muted: #9a94c4; --line: #2d2850; --panel: #1d1940; --accent: #ff79c6; }
+.t-urushi, .t-urushi:is(.nightMode, .night_mode) { --bg: #140d0c; --fg: #f3e6d8; --muted: #a8958a; --line: #3a2622; --panel: #22140f; --accent: #d4a64a; }
+.t-hotaru, .t-hotaru:is(.nightMode, .night_mode) { --bg: #0c1410; --fg: #e2efe4; --muted: #8ea596; --line: #213229; --panel: #132019; --accent: #c6f05a; }
+.t-neon, .t-neon:is(.nightMode, .night_mode) { --bg: #0a0e17; --fg: #e6f7ff; --muted: #7f9bb3; --line: #1c2a3d; --panel: #101a28; --accent: #00e5ff; }
+.t-neon .word, .t-neon .sentence b { text-shadow: 0 0 12px rgba(0, 229, 255, 0.55); }
+.t-neon .tab.on, .t-neon .ex-dots span.on::before { box-shadow: 0 0 10px rgba(0, 229, 255, 0.6); }
+
+/* ===== Base ===== */
+.card {
+  background: var(--bg); color: var(--fg);
+  font-family: "Noto Sans CJK JP", "Noto Sans JP", "Hiragino Sans", "Yu Gothic", sans-serif;
+  font-size: 18px; line-height: 1.6; text-align: center;
+  margin: 0; padding: 24px 16px;
+}
+/* Thin grey page scrollbar on desktop (phones only show one while scrolling) */
+html { scrollbar-width: thin; scrollbar-color: rgba(128, 128, 128, 0.4) transparent; }
+/* English stays blurred until tapped */
+.spoiler { filter: blur(6px); cursor: pointer; user-select: none; transition: filter 0.15s; }
+.spoiler.shown { filter: none; user-select: auto; }
+/* Play button for sentence audio stored as <audio> (Anki draws its own for [sound:] tags) */
+.replay { display: inline-flex; width: 30px; height: 30px; border-radius: 50%; align-items: center; justify-content: center;
+  background: var(--bg); color: var(--accent); text-decoration: none; font-size: 13px; vertical-align: middle; }
+
+/* ===== Front ===== */
+.front { min-height: 60vh; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 32px; }
+.front .word { font-size: 64px; line-height: 1.2; }
+.f-sans  { font-family: "Noto Sans CJK JP", "Noto Sans JP", sans-serif; }
+.f-serif { font-family: "Noto Serif JP", "Noto Serif CJK JP", serif; }
+.f-pen   { font-family: "Klee One", serif; }
+.f-round { font-family: "Zen Maru Gothic", sans-serif; }
+.word-vertical { writing-mode: vertical-rl; letter-spacing: 0.05em; }
+.context { color: var(--muted); font-size: 16px; }
+a.hint { color: var(--muted); }
+div.hint { color: var(--fg); font-size: 20px; }
+
+/* Listening card: a big play button; the word stays hidden until the back */
+.listen-play { width: 96px; height: 96px; border-radius: 50%; border: none; background: var(--accent); color: var(--bg); cursor: pointer; display: flex; align-items: center; justify-content: center; }
+.listen-play svg { width: 44px; height: 44px; fill: currentColor; margin-left: 6px; }
+.listen-hint { color: var(--muted); font-size: 16px; }
+
+/* ===== Back: word, reading, gloss ===== */
+.back { max-width: 560px; margin: 0 auto; padding-top: 40px; }
+/* Gear sits 16px from the bottom, same as from the left (the button has 6px padding) */
+.card:has(.back) { padding-bottom: 10px; }
+.back .word { font-size: 48px; line-height: 1.2; }
+.reading { font-size: 22px; margin-top: 8px; }
+.pitch { display: inline-block; margin: 0 8px; }
+.pitch .h { border-top: 2px solid var(--accent); }
+.pitch .drop { border-right: 2px solid var(--accent); }
+.pitch small { color: var(--muted); font-size: 12px; margin-left: 6px; }
+.gloss { display: inline-block; font-size: 20px; margin-top: 12px; padding: 0 8px; }
+
+/* ===== Back: example sentence ===== */
+.example { background: var(--panel); border-radius: 10px; padding: 12px 16px; margin: 20px 0; text-align: left; }
+.example { cursor: pointer; }
+.sentence { font-size: 20px; }
+.sentence b { color: var(--accent); }
+.sentence rt { visibility: hidden; }  /* furigana on hover or tap */
+.sentence:hover rt, .sentence.show rt { visibility: visible; }
+.translation { color: var(--muted); font-size: 15px; margin-top: 4px; }
+/* Grammar notes: pattern, level, meaning; one per line, revealed with the translation */
+.grammar { margin-top: 6px; font-size: 14px; color: var(--muted); }
+.grammar .gp + .gp { margin-top: 2px; }
+.grammar .gp b { color: var(--fg); font-weight: 600; }
+.grammar small { font-size: 11px; border: 1px solid var(--line); border-radius: 999px; padding: 0 6px; margin: 0 4px; }
+.ex-row { display: flex; align-items: center; gap: 8px; margin-top: 6px; color: var(--muted); font-size: 13px; }
+/* Vertical sentences: right-to-left columns about 7 characters tall. On the back the sentence
+   sits on the right (where vertical text starts) and the translation stays left-aligned below. */
+.s-vertical .sentence, .s-vertical div.hint { writing-mode: vertical-rl; max-height: 7em; text-align: start; max-width: 100%; overflow-x: auto; }
+.s-vertical .sentence { margin-left: auto; }
+.s-vertical div.hint { margin: 0 auto; }
+.s-vertical .translation { margin-top: 8px; }
+
+/* ===== Back: the example's picture above it, then one dot per example (tap to switch) ===== */
+.picture { margin-top: 20px; }
+.picture.multi, .ex-dots span { cursor: pointer; }
+.picture img { display: block; margin: 0 auto; max-width: 100%; max-height: 240px; border-radius: 10px; }
+.ex-dots { display: flex; justify-content: center; align-items: center; height: 6px; margin-top: 12px; }
+.ex-dots[hidden] { display: none; }
+.picture[hidden] + .ex-dots { margin-top: 20px; }
+.ex-dots:not([hidden]) + .example, .picture:not([hidden]) + .ex-dots[hidden] + .example { margin-top: 16px; }
+/* 6px dots 6px apart, drawn by ::before; the span around each is a bigger tap target */
+.ex-dots span { padding: 8px 3px; }
+.ex-dots span::before { content: ""; display: block; width: 6px; height: 6px; border-radius: 3px; background: var(--muted); opacity: 0.4; transition: width 0.2s, opacity 0.2s; }
+.ex-dots span.on::before { width: 18px; background: var(--accent); opacity: 1; }
+
+/* ===== Back: notes and dictionaries ===== */
+details { text-align: left; border-top: 1px solid var(--line); padding: 8px 0; font-size: 15px; }
+summary { color: var(--muted); cursor: pointer; }
+.more { margin-top: 8px; }
+.dicts { text-align: left; margin: 16px 0; font-size: 16px; border-top: 1px solid var(--line); padding-top: 8px; }
+.panel { padding: 4px 2px; }
+.panel ol, .panel ul { padding-left: 1.3em; margin: 4px 0; }
+.panel img { max-height: 1.2em; vertical-align: middle; }
+.panel a { color: var(--accent); }
+/* Yomitan's dictionary markup (Jitendex, Wiktionary...): labels as chips, example sentences set off */
+.panel span[data-sc-content$="-info"] { display: inline-block; font-size: 12px; line-height: 1.6; padding: 0 7px; margin: 0 4px 4px 0;
+  border: 1px solid var(--line); border-radius: 999px; color: var(--muted); }
+.panel [data-sc-content="example-sentence"] { margin: 4px 0 8px; padding-left: 10px; border-left: 2px solid var(--line); }
+.panel [data-sc-content="example-sentence-b"] { color: var(--muted); font-size: 14px; }
+.panel [data-sc-content="attribution"], .panel [data-sc-content="backlink"] { font-size: 12px; color: var(--muted); margin-top: 4px; }
+/* Kanji tab (KANJIDIC): each kanji large, with its meanings, readings and stroke count beside it */
+.panel [data-sc-content="kanji"] { display: flex; gap: 12px; align-items: flex-start; padding: 6px 0; }
+.panel [data-sc-content="kanji"] + [data-sc-content="kanji"] { border-top: 1px dashed var(--line); }
+.panel [data-sc-content="kanji-char"] { font-size: 36px; line-height: 1.15; min-width: 1.1em; text-align: center; }
+.panel [data-sc-content="kanji-info"] { color: var(--muted); font-size: 12px; }
+.entry + .entry { border-top: 1px dashed var(--line); margin-top: 8px; padding-top: 8px; }
+.tabs { display: flex; gap: 6px; overflow-x: auto; padding-top: 8px; scrollbar-width: none; }
+.tab { flex: none; max-width: 12em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  font: inherit; font-size: 13px; padding: 3px 10px; border-radius: 999px; cursor: pointer;
+  border: 1px solid var(--line); background: transparent; color: var(--muted); }
+.tab.on { background: var(--accent); border-color: var(--accent); color: var(--bg); }
+.dict-name { color: var(--muted); font-size: 13px; }
+
+/* ===== Back: footer (⚙ left, frequency right) ===== */
+.meta { display: flex; align-items: center; justify-content: space-between; color: var(--muted); font-size: 12px; margin-top: 16px; }
+.meta > span { line-height: 1; }
+.cog { display: flex; color: var(--muted); background: none; border: none; padding: 6px; margin-left: -6px; cursor: pointer; }
+.cog svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.cog:hover { color: var(--accent); }
+
+/* ===== ⚙ settings panel ===== */
+dialog.settings { width: min(360px, calc(100vw - 32px)); box-sizing: border-box; padding: 20px; text-align: left; font-size: 15px;
+  background: var(--bg); color: var(--fg); border: 1px solid var(--line); border-radius: 14px; box-shadow: 0 12px 40px rgba(0, 0, 0, 0.35); }
+dialog.settings::backdrop { background: rgba(0, 0, 0, 0.45); }
+.settings h2 { font-size: 17px; margin: 0 0 12px; }
+.settings .row { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin: 12px 0; }
+.settings .label { margin: 16px 0 6px; }
+.settings select, .settings button { font: inherit; font-size: 14px; color: var(--fg); background: var(--panel);
+  border: 1px solid var(--line); border-radius: 8px; padding: 6px 10px; cursor: pointer; }
+.settings button:disabled { opacity: 0.35; cursor: default; }
+.settings .seg { display: inline-flex; }
+.settings .seg button { border-radius: 0; }
+.settings .seg button:first-child { border-radius: 8px 0 0 8px; }
+.settings .seg button:last-child { border-radius: 0 8px 8px 0; border-left: none; }
+.settings .seg button.on, .settings .primary { background: var(--accent); border-color: var(--accent); color: var(--bg); }
+.dict-list { list-style: none; margin: 0; padding: 0; border: 1px solid var(--line); border-radius: 8px; }
+.dict-list li { display: flex; align-items: center; gap: 6px; padding: 6px 8px; }
+.dict-list li + li { border-top: 1px solid var(--line); }
+.dict-list span { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.dict-list button { padding: 2px 8px; }
+.settings .actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 20px; }
+.settings .plain { margin-right: auto; background: none; border: none; color: var(--muted); padding-left: 0; }
