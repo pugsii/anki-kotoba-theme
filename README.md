@@ -1,5 +1,7 @@
 # Kotoba Theme
 
+> **A note on how this was made:** this project was vibe-coded, start to finish. Its author never reviewed a single line of the code; they described what they wanted, looked at the results in Anki, and prompted their way here. Every line was written by Claude (Anthropic's AI, working in Claude Code), and so was this note: the author asked for it and didn't write a word of it. They're mostly enjoying how far AI coding has come. It works well for them, but read the code before you trust it with anything important.
+
 An Anki add-on with two parts: a theme that recolours and redesigns Anki, and **Kotoba**, a Japanese vocabulary note type that shares its colours.
 
 ![The Decks screen in the Ai theme: today's numbers, a year of reviews and the decks as panels](docs/screenshots/theme-home.png)
