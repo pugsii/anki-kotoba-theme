@@ -198,6 +198,8 @@ def on_page_style(webview):
 
 
 def on_message(handled, message, context):
+    """Messages from the redesigned screens and the cards' storage script. Card templates can run any script, so
+    the input is checked: malformed messages are ignored, and only the cards' own jp-* keys are stored."""
     if message.startswith("kt-theme:"):
         choose_theme(message[len("kt-theme:"):])
         return True, None
@@ -206,13 +208,18 @@ def on_message(handled, message, context):
         state["picker_open"] = True
         mw.deckBrowser.refresh()
         return True, None
-    if message.startswith(("kt-day:", "kt-due:")):
+    if re.fullmatch(r"kt-(day|due):-?\d+:\d+", message):
         kind, offset, deck_id = message.split(":")
         browse_day(kind, int(offset), int(deck_id))
         return True, None
     if not message.startswith("kt-store:"):
         return handled
-    key, value = json.loads(message[len("kt-store:"):])
+    try:
+        key, value = json.loads(message[len("kt-store:"):])
+    except ValueError:
+        return True, None
+    if not (isinstance(key, str) and key.startswith("jp-") and (value is None or isinstance(value, str))):
+        return True, None
     config = mw.addonManager.getConfig(__name__) or {}
     store = config.setdefault("storage", {})
     if value is None:
@@ -247,11 +254,9 @@ def install_note_type():
 
 
 def add_menu():
-    if not getattr(mw, "_kotoba_menu", None):
-        action = QAction("Kotoba: install or update note type", mw)
-        action.triggered.connect(install_note_type)
-        mw.form.menuTools.addAction(action)
-        mw._kotoba_menu = action
+    action = QAction("Kotoba: install or update note type", mw)
+    action.triggered.connect(install_note_type)
+    mw.form.menuTools.addAction(action)
 
 
 gui_hooks.style_did_init.append(on_qt_style)
