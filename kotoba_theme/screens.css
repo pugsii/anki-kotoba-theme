@@ -130,7 +130,7 @@ body:has(.kt) { background: var(--kt-bg); margin: 0; }
   border-radius: 999px; cursor: pointer; }
 .kt-mode:hover { color: var(--kt-fg); }
 .kt-mode.kt-on { background: var(--kt-accent); color: var(--kt-on-accent); }
-.kt-themes { display: flex; flex-direction: column; gap: 2px; max-height: min(52vh, 420px); overflow-y: auto; scrollbar-width: thin; }
+.kt-themes { display: flex; flex-direction: column; gap: 2px; }
 .kt-theme { display: flex; align-items: center; gap: 10px; width: 100%; padding: 5px 8px 5px 6px; border: 0; border-radius: 9px;
   background: none; color: var(--kt-fg); font: inherit; font-size: 13px; text-align: left; cursor: pointer; }
 .kt-theme:hover { background: color-mix(in srgb, var(--kt-fg) 7%, transparent); }

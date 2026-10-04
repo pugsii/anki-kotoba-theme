@@ -36,7 +36,7 @@ def setting(css, name, default=""):
 def pick_theme(css, override=None, now=None):
     """The active theme's palette: the ⚙ override if any, else the Styling setting; "weekly" rotates."""
     themes = palettes(css)
-    name = override or setting(css, "theme", "sumi")
+    name = override or setting(css, "theme", "ai")
     if name == "weekly" and themes:
         week = int((now if now is not None else time.time()) * 1000 // 604800000)
         name = list(themes)[week % len(themes)]
