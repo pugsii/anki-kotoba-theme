@@ -95,20 +95,46 @@ def heatmap(stats, today, deck_id=0):
 </section>"""
 
 
-def theme_picker(picker):
-    """Light/Dark/Auto plus one swatch per theme (its background and accent). picker: {"themes": [(name, bg,
-    accent)], "current": name, "mode": "light" | "dark" | "auto"}; clicks send kt-mode:<mode> / kt-theme:<name>."""
+THEME_NAMES = {"washi": "和紙", "ai": "藍", "matcha": "抹茶", "sakura": "桜", "sumi": "墨", "yamabuki": "山吹", "umi": "海",
+               "fuji": "藤", "kissa": "喫茶", "yoru": "夜", "urushi": "漆", "hotaru": "蛍", "neon": "ネオン"}
+
+
+def theme_picker(picker, open_=False):
+    """A cog in the top right that opens a menu: Light/Dark/Auto, then each theme as a mini card (its background,
+    text and accent) with its name. picker: {"themes": [(name, bg, fg, accent)], "current": name,
+    "mode": "light" | "dark" | "auto"}; clicks send kt-mode:<mode> / kt-theme:<name>. open_: start open (it
+    re-renders after a choice, and stays open so themes can be compared)."""
     if not picker or not picker["themes"]:
         return ""
     modes = "".join(f'<button class="kt-mode{" kt-on" if picker["mode"] == m else ""}" onclick="return pycmd(\'kt-mode:{m}\')">'
                     f'{label}</button>' for m, label in (("light", "Light"), ("dark", "Dark"), ("auto", "Auto")))
-    swatches = "".join(f'<button class="kt-swatch{" kt-on" if name == picker["current"] else ""}" title="{escape(name)}" '
-                       f'aria-label="{escape(name)} theme" style="--a:{bg};--b:{accent}" '
-                       f'onclick="return pycmd(\'kt-theme:{escape(name)}\')"></button>' for name, bg, accent in picker["themes"])
-    return f'<div class="kt-picker"><div class="kt-modes">{modes}</div><div class="kt-swatches">{swatches}</div></div>'
+    rows = "".join(
+        f'<button class="kt-theme{" kt-on" if name == picker["current"] else ""}" role="menuitemradio" '
+        f'aria-checked="{"true" if name == picker["current"] else "false"}" onclick="return pycmd(\'kt-theme:{escape(name)}\')">'
+        f'<span class="kt-chip" style="--b:{bg};--f:{fg};--a:{accent}">あ</span>'
+        f'<span class="kt-tname">{escape(name.capitalize())}</span><span class="kt-tjp">{THEME_NAMES.get(name, "")}</span>'
+        f'<span class="kt-check">✓</span></button>' for name, bg, fg, accent in picker["themes"])
+    return f"""<div class="kt-settings">
+    <button class="kt-cog" title="Appearance" aria-haspopup="true" aria-expanded="{str(open_).lower()}" onclick="ktMenu()">{GEAR}</button>
+    <div class="kt-menu" role="menu"{"" if open_ else " hidden"}>
+      <div class="kt-menu-label">Mode</div><div class="kt-modes">{modes}</div>
+      <div class="kt-menu-label">Theme</div><div class="kt-themes">{rows}</div>
+    </div>
+  </div>
+  <script>
+  function ktMenu(show) {{
+    var menu = document.querySelector(".kt-menu"), cog = document.querySelector(".kt-cog");
+    var open = show === undefined ? menu.hidden : show;
+    menu.hidden = !open;
+    cog.setAttribute("aria-expanded", open);
+    if (open) {{ var on = menu.querySelector(".kt-theme.kt-on"); if (on) on.scrollIntoView({{block: "nearest"}}); }}
+  }}
+  document.addEventListener("click", function (e) {{ if (!e.target.closest(".kt-settings")) ktMenu(false); }});
+  document.addEventListener("keydown", function (e) {{ if (e.key === "Escape") ktMenu(false); }});
+  </script>"""
 
 
-def home(decks, stats, now=None, picker=None):
+def home(decks, stats, now=None, picker=None, picker_open=False):
     """decks: [{id, name, new, learn, review, done, collapsed, current, children}];
     stats: core.review_stats plus "studied" (Anki's summary line) and "today" (the Anki day's date);
     picker: see theme_picker (None hides it)."""
@@ -123,7 +149,7 @@ def home(decks, stats, now=None, picker=None):
   <header class="kt-hero">
     <div><div class="kt-date">{now.month}月{now.day}日（{WEEKDAYS[now.weekday()]}）</div>
     <h1>{greeting(now.hour)}</h1></div>
-    {theme_picker(picker)}
+    {theme_picker(picker, picker_open)}
   </header>
   <div class="kt-tiles">{"".join(f'<div class="kt-tile"><b>{v}</b><span>{label}</span></div>' for v, label in tiles)}</div>
   {heatmap(stats, stats.get("today", now.date()))}

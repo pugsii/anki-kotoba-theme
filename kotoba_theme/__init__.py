@@ -109,7 +109,8 @@ def home_html(browser):
         rollup(d)
     stats["studied"] = data.studied_today
     stats["today"] = anki_today()
-    return screens.home(decks, stats, picker=picker_data())
+    picker_open, state["picker_open"] = state.get("picker_open", False), False  # open once, after a choice
+    return screens.home(decks, stats, picker=picker_data(), picker_open=picker_open)
 
 
 def picker_data():
@@ -119,7 +120,7 @@ def picker_data():
     if not model:
         return None
     mode = "dark" if theme_manager.night_mode else "light"
-    themes = [(name, p[mode]["bg"], p[mode]["accent"]) for name, p in core.palettes(model["css"]).items()]
+    themes = [(name, p[mode]["bg"], p[mode]["fg"], p[mode]["accent"]) for name, p in core.palettes(model["css"]).items()]
     (current, _), _ = palette()
     return {"themes": themes, "current": current,
             "mode": {Theme.LIGHT: "light", Theme.DARK: "dark"}.get(mw.pm.theme(), "auto")}
@@ -143,6 +144,7 @@ def choose_theme(name):
         store["jp-settings"] = json.dumps(settings)
         mw.addonManager.writeConfig(__name__, config)
     apply_theme(force=True)
+    state["picker_open"] = True
     mw.deckBrowser.refresh()
 
 
@@ -189,6 +191,7 @@ def on_message(handled, message, context):
         return True, None
     if message.startswith("kt-mode:"):
         mw.set_theme({"light": Theme.LIGHT, "dark": Theme.DARK}.get(message[len("kt-mode:"):], Theme.FOLLOW_SYSTEM))
+        state["picker_open"] = True
         mw.deckBrowser.refresh()
         return True, None
     if message.startswith(("kt-day:", "kt-due:")):

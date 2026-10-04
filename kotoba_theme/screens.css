@@ -113,17 +113,33 @@ body:has(.kt) { background: var(--kt-bg); margin: 0; }
 #outer button[data-ease="3"] { background: var(--kt-accent) !important; border-color: var(--kt-accent) !important; color: var(--kt-on-accent) !important; }
 #outer button[data-ease="4"] { color: var(--state-new) !important; background: color-mix(in srgb, var(--state-new) 12%, var(--kt-panel)) !important; }
 
-/* Theme picker (top right of the home screen): light/dark/auto, then one swatch per theme */
-.kt-hero { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
-.kt-picker { display: flex; flex-direction: column; align-items: flex-end; gap: 8px; }
-.kt-modes { display: inline-flex; background: var(--kt-panel); border-radius: 999px; padding: 3px; }
-.kt-mode { font: inherit; font-size: 12px; border: 0; background: none; color: var(--kt-muted); padding: 3px 11px;
+/* Appearance menu (cog, top right of the home screen): mode, then the themes as mini cards with their names */
+.kt-hero { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; }
+.kt-settings { position: relative; }
+.kt-cog { display: flex; padding: 7px; border: 0; border-radius: 10px; background: none; color: var(--kt-muted); cursor: pointer; }
+.kt-cog svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.8; }
+.kt-cog:hover, .kt-cog[aria-expanded="true"] { color: var(--kt-fg); background: var(--kt-panel); }
+.kt-menu { position: absolute; right: 0; top: calc(100% + 6px); z-index: 10; width: 248px; box-sizing: border-box;
+  padding: 10px; border-radius: 14px; background: var(--kt-panel); border: 1px solid var(--kt-line);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.28); }
+.kt-menu[hidden] { display: none; }
+.kt-menu-label { font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--kt-muted); margin: 2px 6px 6px; }
+.kt-modes { display: flex; background: color-mix(in srgb, var(--kt-fg) 6%, transparent); border-radius: 999px; padding: 3px;
+  margin-bottom: 12px; }
+.kt-mode { flex: 1; font: inherit; font-size: 12px; border: 0; background: none; color: var(--kt-muted); padding: 4px 0;
   border-radius: 999px; cursor: pointer; }
 .kt-mode:hover { color: var(--kt-fg); }
 .kt-mode.kt-on { background: var(--kt-accent); color: var(--kt-on-accent); }
-.kt-swatches { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 6px; }
-.kt-swatch { width: 18px; height: 18px; padding: 0; border-radius: 50%; cursor: pointer;
-  border: 1px solid color-mix(in srgb, var(--kt-fg) 25%, transparent);
-  background: linear-gradient(135deg, var(--a) 50%, var(--b) 50%); transition: transform 0.12s; }
-.kt-swatch:hover { transform: scale(1.15); }
-.kt-swatch.kt-on { box-shadow: 0 0 0 2px var(--kt-bg), 0 0 0 3.5px var(--kt-fg); }
+.kt-themes { display: flex; flex-direction: column; gap: 2px; max-height: min(52vh, 420px); overflow-y: auto; scrollbar-width: thin; }
+.kt-theme { display: flex; align-items: center; gap: 10px; width: 100%; padding: 5px 8px 5px 6px; border: 0; border-radius: 9px;
+  background: none; color: var(--kt-fg); font: inherit; font-size: 13px; text-align: left; cursor: pointer; }
+.kt-theme:hover { background: color-mix(in srgb, var(--kt-fg) 7%, transparent); }
+.kt-theme.kt-on { background: color-mix(in srgb, var(--kt-accent) 16%, transparent); }
+/* the swatch: a tiny card in the theme's background, with its text colour and an accent stripe */
+.kt-chip { flex: none; width: 36px; height: 24px; border-radius: 6px; background: var(--b); color: var(--f);
+  font-size: 12px; line-height: 22px; text-align: center; box-sizing: border-box;
+  border: 1px solid color-mix(in srgb, var(--kt-fg) 18%, transparent); box-shadow: inset 0 -3px 0 var(--a); }
+.kt-tname { flex: 1; }
+.kt-tjp { color: var(--kt-muted); font-size: 12px; }
+.kt-check { width: 14px; color: var(--kt-accent); visibility: hidden; }
+.kt-theme.kt-on .kt-check { visibility: visible; }
