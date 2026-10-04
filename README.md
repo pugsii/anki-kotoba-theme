@@ -2,12 +2,22 @@
 
 An Anki add-on with two parts: a theme that recolours and redesigns Anki, and **Kotoba**, a Japanese vocabulary note type that shares its colours.
 
+![The Decks screen in the Ai theme: today's numbers, a year of reviews and the decks as panels](docs/screenshots/theme-home.png)
+
 ## The theme
 
 - **13 colour themes**, each in light and dark: Washi 和紙, Ai 藍 (the default), Matcha 抹茶, Sakura 桜, Sumi 墨, Yamabuki 山吹, Umi 海, Fuji 藤, Kissa 喫茶, Yoru 夜, Urushi 漆, Hotaru 蛍 and Neon. They colour all of Anki: its windows, menus and web screens.
 - **A redesigned Decks screen:** a greeting, today's numbers (due, done, streak, minutes left), a year of reviews as a heatmap plus the coming weeks' due cards (click a day to browse those cards), and your decks as panels.
 - **A redesigned deck overview** in the same style.
 - **The cog** at the top right of the Decks screen: Light / Dark / Auto, and every theme with a preview of its colours.
+
+<p>
+<img src="docs/screenshots/theme-menu.png" width="32%" alt="The cog's menu: light, dark or auto, and the 13 themes">
+<img src="docs/screenshots/theme-home-light.png" width="32%" alt="The Decks screen in the Sakura theme, light">
+<img src="docs/screenshots/theme-overview.png" width="32%" alt="A deck's overview: new, learning and review counts, a Study now button and the deck's heatmap">
+</p>
+
+*The cog's menu, Sakura in light mode, and a deck's overview.*
 
 ## The Kotoba note type
 
@@ -18,6 +28,13 @@ An Anki add-on with two parts: a theme that recolours and redesigns Anki, and **
 - **Dictionaries as tabs,** in the order you choose, from Yomitan's `{glossary}` output.
 - **A Listening card** for notes with sentence audio: hear the line first, then see it.
 - **A ⚙ on every card** to change the theme, dictionary order or sentence layout (horizontal or vertical 縦書き) on that device. The defaults for every device are at the top of the note type's Styling.
+
+<p>
+<img src="docs/screenshots/card-front.png" width="49%" alt="A card's front: the word 再現 alone">
+<img src="docs/screenshots/card-back.png" width="49%" alt="The back: reading and pitch accent, a scene from the anime, the sentence with furigana, its translation, a grammar note and the source">
+</p>
+
+*Front and back of a card made by the Jellyfin Miner (example sentence 3 of 3, with its translation shown).*
 
 ### Fields
 

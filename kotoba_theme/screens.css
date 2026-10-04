@@ -103,7 +103,9 @@ body:has(.kt) { background: var(--kt-bg); margin: 0; }
 #outer button:hover { border-color: var(--kt-accent) !important; }
 #outer #ansbut { background: var(--kt-accent) !important; border-color: var(--kt-accent) !important; color: var(--kt-on-accent) !important;
   font-weight: 600; min-width: 220px; }
-#outer #ansbut .stattxt, #outer #ansbut span { color: inherit !important; opacity: 0.85; }
+/* The review counts sit inside this button in the page but are drawn above it, on the page background: they keep
+   Anki's own colours (new, learning, review), with a muted "+" between them */
+#outer #ansbut .stattxt { color: var(--kt-muted) !important; }
 /* Answer buttons: soft tints, Good filled with the accent */
 #outer button[data-ease] { min-width: 76px; padding: 5px 12px !important; font-weight: 600; }
 /* Interval labels sit above the buttons (Anki positions them), so they need their own colour */
